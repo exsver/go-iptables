@@ -8,7 +8,6 @@ Go bindings for iptables
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/exsver/go-iptables"
@@ -35,7 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = config.Exec(args)
+	err = config.Do(args)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +47,6 @@ func main() {
 package main
 
 import (
-	"fmt"
 	"log"
 	
 	"github.com/exsver/go-iptables"
