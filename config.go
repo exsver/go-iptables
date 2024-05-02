@@ -1,6 +1,11 @@
 package iptables
 
-import "fmt"
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"os/exec"
+)
 
 type Config struct {
 	// Path to iptables bin
@@ -25,4 +30,20 @@ func NewConfig(path string, chain string) (*Config, error) {
 		Path:  path,
 		Chain: chain,
 	}, nil
+}
+
+func (c *Config) Exec(args []string) (string, string, error) {
+	cmd := exec.CommandContext(context.Background(), c.Path, args...)
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return stdout.String(), stderr.String(), fmt.Errorf("error while executing command: %v", err)
+	}
+
+	return stdout.String(), stderr.String(), nil
 }
