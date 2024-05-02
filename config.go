@@ -3,6 +3,7 @@ package iptables
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 )
@@ -30,6 +31,23 @@ func NewConfig(path string, chain string) (*Config, error) {
 		Path:  path,
 		Chain: chain,
 	}, nil
+}
+
+func (c *Config) Do(args []string) error {
+	stdout, stderr, err := c.Exec(args)
+	if err != nil {
+		return err
+	}
+
+	if stderr != "" {
+		return errors.New(stderr)
+	}
+
+	if stdout != "" {
+		return errors.New(stdout)
+	}
+
+	return nil
 }
 
 func (c *Config) Exec(args []string) (string, string, error) {
