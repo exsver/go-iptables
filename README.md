@@ -48,7 +48,8 @@ package main
 
 import (
 	"log"
-	
+	"os"
+
 	"github.com/exsver/go-iptables"
 )
 
@@ -62,6 +63,9 @@ func main() {
 		Path:  "/usr/sbin/iptables",
 		Chain: "FlushTest",
 	}
+
+	// Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
 
 	// Flush rules in Chain FlushTest
 	err := config.Flush()
