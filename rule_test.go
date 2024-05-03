@@ -10,6 +10,8 @@ func TestRule_GenArgs(t *testing.T) {
 		Source      string
 		Destination string
 		Protocol    string
+		DstPort     int
+		SrcPort     int
 		Jump        string
 	}
 	tests := []struct {
@@ -37,6 +39,27 @@ func TestRule_GenArgs(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "dport",
+			fields: fields{
+				Destination: "192.168.1.200/32",
+				Protocol:    "tcp",
+				DstPort:     22,
+				Jump:        "DROP",
+			},
+			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-j", "DROP"},
+			wantErr: false,
+		},
+		{
+			name: "dport-error",
+			fields: fields{
+				Destination: "192.168.1.200/32",
+				DstPort:     22,
+				Jump:        "DROP",
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -45,6 +68,8 @@ func TestRule_GenArgs(t *testing.T) {
 				Source:      tt.fields.Source,
 				Destination: tt.fields.Destination,
 				Protocol:    tt.fields.Protocol,
+				DstPort:     tt.fields.DstPort,
+				SrcPort:     tt.fields.SrcPort,
 				Jump:        tt.fields.Jump,
 			}
 
