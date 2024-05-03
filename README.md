@@ -17,10 +17,10 @@ import (
 // !!! Requires root privileges
 //
 // Create new chain
-// iptables -N AddRuleTest
+// iptables -N AppendRuleTest
 func main() {
 	// Create config: path to iptables bin and name of chain.
-	config, err := iptables.NewConfig("/usr/sbin/iptables", "AddRuleTest")
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "AppendRuleTest")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,7 +36,45 @@ func main() {
 	}
 
 	// Exec iptables
-	err = config.Append(rule)
+	err = config.Append(&rule)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+### Insert Rule
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/exsver/go-iptables"
+)
+
+// !!! Requires root privileges
+func main() {
+	// Create config: path to iptables bin and name of chain.
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "AppendRuleTest")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Optional: Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
+
+	// Prepare rule config
+	rule := iptables.Rule{
+		Source:      "192.168.1.11/32",
+		Destination: "192.168.1.21/32",
+		Jump:        "DROP",
+	}
+
+	// Exec iptables
+	err = config.Insert(&rule, 1)
 	if err != nil {
 		log.Fatal(err)
 	}
