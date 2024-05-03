@@ -9,6 +9,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/exsver/go-iptables"
 )
@@ -18,11 +19,13 @@ import (
 // Create new chain
 // iptables -N AddRuleTest
 func main() {
-	config := iptables.Config{
-		Path:  "/usr/sbin/iptables",
-		Chain: "AddRuleTest",
-	}
+	// Create config: path to iptables bin and name of chain.
+	config := iptables.NewConfig("/usr/sbin/iptables", "AddRuleTest")
 
+	// Optional: Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
+
+	// Prepare rule config
 	rule := iptables.Rule{
 		Command:     "append",
 		Source:      "192.168.1.10/32",
@@ -35,6 +38,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Exec iptables
 	err = config.Do(args)
 	if err != nil {
 		log.Fatal(err)
@@ -65,7 +69,7 @@ func main() {
 		Chain: "FlushTest",
 	}
 
-	// Set debug logger
+	// Optional: Set debug logger
 	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
 
 	// Flush rules in Chain FlushTest
