@@ -24,6 +24,7 @@ func main() {
 	}
 
 	rule := iptables.Rule{
+		Command:     "append",
 		Source:      "192.168.1.10/32",
 		Destination: "192.168.1.20/32",
 		Jump:        "DROP",
