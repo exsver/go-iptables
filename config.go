@@ -38,6 +38,10 @@ func NewConfig(path string, chain string) (*Config, error) {
 	}, nil
 }
 
+func (c *Config) SetLogger(logger *log.Logger) {
+	c.Logger = logger
+}
+
 func (c *Config) Do(args []string) error {
 	stdout, stderr, err := c.Exec(args)
 	if err != nil {
