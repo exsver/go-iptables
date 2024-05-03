@@ -20,7 +20,10 @@ import (
 // iptables -N AddRuleTest
 func main() {
 	// Create config: path to iptables bin and name of chain.
-	config := iptables.NewConfig("/usr/sbin/iptables", "AddRuleTest")
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "AddRuleTest")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Optional: Set debug logger
 	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
@@ -64,9 +67,10 @@ import (
 // iptables -N FlushTest
 // iptables -A FlushTest -s 192.168.1.1/32 -j ACCEPT
 func main() {
-	config := iptables.Config{
-		Path:  "/usr/sbin/iptables",
-		Chain: "FlushTest",
+	// Create config: path to iptables bin and name of chain.
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "FlushTest")
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Optional: Set debug logger
