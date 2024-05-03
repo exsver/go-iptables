@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"os/exec"
 )
 
@@ -20,6 +22,8 @@ type Config struct {
 	//   "FORWARD"
 	//   "OUTPUT"
 	Chain string
+	// Logger - debug logger
+	Logger *log.Logger
 }
 
 func (c *Config) String() string {
@@ -28,8 +32,9 @@ func (c *Config) String() string {
 
 func NewConfig(path string, chain string) (*Config, error) {
 	return &Config{
-		Path:  path,
-		Chain: chain,
+		Path:   path,
+		Chain:  chain,
+		Logger: log.New(io.Discard, "", 0),
 	}, nil
 }
 
@@ -51,6 +56,7 @@ func (c *Config) Do(args []string) error {
 }
 
 func (c *Config) Exec(args []string) (string, string, error) {
+	c.Logger.Printf("exec %s %s", c.Path, args)
 	cmd := exec.CommandContext(context.Background(), c.Path, args...)
 
 	var stdout bytes.Buffer
@@ -60,6 +66,7 @@ func (c *Config) Exec(args []string) (string, string, error) {
 
 	err := cmd.Run()
 	if err != nil {
+		c.Logger.Printf("exec error '%s' '%s' '%s'", stdout.String(), stderr.String(), err.Error())
 		return stdout.String(), stderr.String(), fmt.Errorf("error while executing command: %v", err)
 	}
 
