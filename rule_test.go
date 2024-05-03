@@ -7,7 +7,6 @@ import (
 
 func TestRule_GenArgs(t *testing.T) {
 	type fields struct {
-		Command     string
 		Source      string
 		Destination string
 		Protocol    string
@@ -22,30 +21,18 @@ func TestRule_GenArgs(t *testing.T) {
 		{
 			name: "s-d-j",
 			fields: fields{
-				Command:     "A",
 				Source:      "192.168.1.10/32",
 				Destination: "192.168.1.20/32",
 				Jump:        "DROP",
 			},
-			want:    []string{"-A", "-s", "192.168.1.10/32", "-d", "192.168.1.20/32", "-j", "DROP"},
+			want:    []string{"-s", "192.168.1.10/32", "-d", "192.168.1.20/32", "-j", "DROP"},
 			wantErr: false,
 		},
 		{
 			name: "no-jump",
 			fields: fields{
-				Command:     "A",
 				Source:      "192.168.1.10/32",
 				Destination: "192.168.1.20/32",
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name: "no-command",
-			fields: fields{
-				Source:      "192.168.1.10/32",
-				Destination: "192.168.1.20/32",
-				Jump:        "DROP",
 			},
 			want:    nil,
 			wantErr: true,
@@ -55,7 +42,6 @@ func TestRule_GenArgs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Rule{
-				Command:     tt.fields.Command,
 				Source:      tt.fields.Source,
 				Destination: tt.fields.Destination,
 				Protocol:    tt.fields.Protocol,

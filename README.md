@@ -2,7 +2,7 @@
 Go bindings for iptables
 
 ## Examples
-### Add Rule
+### Append Rule
 
 ```go
 package main
@@ -30,19 +30,13 @@ func main() {
 
 	// Prepare rule config
 	rule := iptables.Rule{
-		Command:     "append",
 		Source:      "192.168.1.10/32",
 		Destination: "192.168.1.20/32",
 		Jump:        "DROP",
 	}
 
-	args, err := rule.GenArgs()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Exec iptables
-	err = config.Do(args)
+	err = config.Append(rule)
 	if err != nil {
 		log.Fatal(err)
 	}
