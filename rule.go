@@ -2,15 +2,14 @@ package iptables
 
 import (
 	"fmt"
-	"strconv"
 )
 
 type Rule struct {
 	Source      string
 	Destination string
 	Protocol    string
-	DstPort     int
-	SrcPort     int
+	DstPort     string
+	SrcPort     string
 	Jump        string
 }
 
@@ -29,19 +28,19 @@ func (r *Rule) GenArgs() ([]string, error) {
 		args = append(args, "-p", r.Protocol)
 	}
 
-	if r.DstPort != 0 {
+	if r.DstPort != "" {
 		switch r.Protocol {
 		case "tcp", "udp":
-			args = append(args, "--dport", strconv.Itoa(r.DstPort))
+			args = append(args, "--dport", r.DstPort)
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")
 		}
 	}
 
-	if r.SrcPort != 0 {
+	if r.SrcPort != "" {
 		switch r.Protocol {
 		case "tcp", "udp":
-			args = append(args, "--sport", strconv.Itoa(r.SrcPort))
+			args = append(args, "--sport", r.SrcPort)
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")
 		}
