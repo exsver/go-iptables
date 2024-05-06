@@ -86,6 +86,46 @@ func main() {
 }
 ```
 
+### Append Rule (3)
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/exsver/go-iptables"
+)
+
+// !!! Requires root privileges
+//
+// Create new chain
+// iptables -N AppendRuleTest
+func main() {
+	// Create config: path to iptables bin and name of chain.
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "AppendRuleTest")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Optional: Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
+
+	// Prepare rule config
+	// iptables -A AppendRuleTest -j DROP
+	rule := iptables.Rule{
+		Jump:  "DROP",
+	}
+
+	// Exec iptables
+	err = config.Append(&rule)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
 ### Insert Rule
 
 ```go
