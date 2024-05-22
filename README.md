@@ -74,7 +74,7 @@ func main() {
 		Source:      "192.168.1.100/32",
 		Destination: "192.168.1.200/32",
 		Protocol:    "tcp",
-		DstPort:     "22",
+		DstPort:     "21,22,111,1024:65535",
 		Jump:        "DROP",
 	}
 
