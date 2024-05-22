@@ -2,6 +2,7 @@ package iptables
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Rule struct {
@@ -31,7 +32,16 @@ func (r *Rule) GenArgs() ([]string, error) {
 	if r.DstPort != "" {
 		switch r.Protocol {
 		case "tcp", "udp":
-			args = append(args, "--dport", r.DstPort)
+			ports := strings.Split(r.DstPort, ",")
+			if len(ports) == 1 {
+				args = append(args, "--dport", strings.TrimSpace(r.DstPort))
+			} else {
+				portsString := ""
+				for _, port := range ports {
+					portsString += fmt.Sprintf(",%s", strings.TrimSpace(port))
+				}
+				args = append(args, "-m", "-multiport", "--dports", strings.Join(ports, ","))
+			}
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")
 		}
@@ -40,7 +50,16 @@ func (r *Rule) GenArgs() ([]string, error) {
 	if r.SrcPort != "" {
 		switch r.Protocol {
 		case "tcp", "udp":
-			args = append(args, "--sport", r.SrcPort)
+			ports := strings.Split(r.SrcPort, ",")
+			if len(ports) == 1 {
+				args = append(args, "--sport", r.SrcPort)
+			} else {
+				portsString := ""
+				for _, port := range ports {
+					portsString += fmt.Sprintf(",%s", strings.TrimSpace(port))
+				}
+				args = append(args, "-m", "-multiport", "--sports", strings.Join(ports, ","))
+			}
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")
 		}

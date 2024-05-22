@@ -51,6 +51,28 @@ func TestRule_GenArgs(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "dst multiport",
+			fields: fields{
+				Destination: "192.168.1.222/32",
+				Protocol:    "tcp",
+				DstPort:     "21,22,111,1024:65535",
+				Jump:        "DROP",
+			},
+			want:    []string{"-d", "192.168.1.222/32", "-p", "tcp", "-m", "-multiport", "--dports", "21,22,111,1024:65535", "-j", "DROP"},
+			wantErr: false,
+		},
+		{
+			name: "src multiport",
+			fields: fields{
+				Source:   "192.168.1.100/32",
+				Protocol: "tcp",
+				SrcPort:  "21,22",
+				Jump:     "DROP",
+			},
+			want:    []string{"-s", "192.168.1.100/32", "-p", "tcp", "-m", "-multiport", "--sports", "21,22", "-j", "DROP"},
+			wantErr: false,
+		},
+		{
 			name: "dport-error",
 			fields: fields{
 				Destination: "192.168.1.200/32",
