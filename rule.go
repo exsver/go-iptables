@@ -40,7 +40,7 @@ func (r *Rule) GenArgs() ([]string, error) {
 				for _, port := range ports {
 					portsString += fmt.Sprintf(",%s", strings.TrimSpace(port))
 				}
-				args = append(args, "-m", "-multiport", "--dports", strings.Join(ports, ","))
+				args = append(args, "-m", "multiport", "--dports", strings.Join(ports, ","))
 			}
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")
@@ -58,7 +58,7 @@ func (r *Rule) GenArgs() ([]string, error) {
 				for _, port := range ports {
 					portsString += fmt.Sprintf(",%s", strings.TrimSpace(port))
 				}
-				args = append(args, "-m", "-multiport", "--sports", strings.Join(ports, ","))
+				args = append(args, "-m", "multiport", "--sports", strings.Join(ports, ","))
 			}
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")

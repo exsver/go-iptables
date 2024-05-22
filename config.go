@@ -61,7 +61,7 @@ func (c *Config) Do(args []string) error {
 }
 
 func (c *Config) Exec(args []string) (string, string, error) {
-	c.Logger.Printf("exec %s %s", c.Path, strings.Join(args, " "))
+	c.Logger.Printf("exec '%s %s'", c.Path, strings.Join(args, " "))
 	cmd := exec.CommandContext(context.Background(), c.Path, args...)
 
 	var stdout bytes.Buffer
