@@ -11,6 +11,7 @@ type Rule struct {
 	Protocol    string
 	DstPort     string
 	SrcPort     string
+	Comment     string
 	Jump        string
 }
 
@@ -63,6 +64,10 @@ func (r *Rule) GenArgs() ([]string, error) {
 		default:
 			return nil, fmt.Errorf("protocol must be tcp or udp")
 		}
+	}
+
+	if r.Comment != "" {
+		args = append(args, "-m", "comment", "--comment", fmt.Sprintf("'%s'", strings.ReplaceAll(r.Comment, "'", "\"")))
 	}
 
 	if r.Jump != "" {

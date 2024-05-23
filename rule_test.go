@@ -12,6 +12,7 @@ func TestRule_GenArgs(t *testing.T) {
 		Protocol    string
 		DstPort     string
 		SrcPort     string
+		Comment     string
 		Jump        string
 	}
 	tests := []struct {
@@ -80,7 +81,31 @@ func TestRule_GenArgs(t *testing.T) {
 				Jump:        "DROP",
 			},
 			want:    nil,
-			wantErr: true,
+			wantErr: true, // tcp or udp required
+		},
+		{
+			name: "comment",
+			fields: fields{
+				Destination: "192.168.1.200/32",
+				Protocol:    "tcp",
+				DstPort:     "22",
+				Comment:     "deny ssh",
+				Jump:        "DROP",
+			},
+			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "'deny ssh'", "-j", "DROP"},
+			wantErr: false,
+		},
+		{
+			name: "comment with quotes",
+			fields: fields{
+				Destination: "192.168.1.200/32",
+				Protocol:    "tcp",
+				DstPort:     "22",
+				Comment:     "deny 'ssh'",
+				Jump:        "DROP",
+			},
+			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "'deny \"ssh\"'", "-j", "DROP"},
+			wantErr: false,
 		},
 	}
 
@@ -92,6 +117,7 @@ func TestRule_GenArgs(t *testing.T) {
 				Protocol:    tt.fields.Protocol,
 				DstPort:     tt.fields.DstPort,
 				SrcPort:     tt.fields.SrcPort,
+				Comment:     tt.fields.Comment,
 				Jump:        tt.fields.Jump,
 			}
 
