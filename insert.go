@@ -12,11 +12,11 @@ func (c *Config) Insert(rule *Rule, num int) error {
 		return err
 	}
 
-	args := []string{"-I", c.Chain, strconv.Itoa(num)}
+	args := []string{"-t", c.Table, "-I", c.Chain, strconv.Itoa(num)}
 	args = append(args, ruleArgs...)
 
 	// logger
-	c.Logger.Printf("Inserting iptables rule '%s' into chain '%s'", strings.Join(ruleArgs, " "), c.Chain)
+	c.Logger.Printf("Inserting iptables rule '%s' into table '%s' chain '%s'", strings.Join(ruleArgs, " "), c.Table, c.Chain)
 
 	return c.Do(args)
 }

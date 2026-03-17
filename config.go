@@ -17,6 +17,14 @@ type Config struct {
 	//   "/usr/sbin/iptables"
 	//   "/usr/sbin/ip6tables"
 	Path string
+	// Table name
+	// Examples:
+	//   "filter"
+	//   "nat"
+	//   "mangle"
+	//   "raw"
+	//   "security"
+	Table string
 	// Chain name
 	// Examples:
 	//   "INPUT"
@@ -28,15 +36,20 @@ type Config struct {
 }
 
 func (c *Config) String() string {
-	return fmt.Sprintf("Path: '%s', Chain: '%s'", c.Path, c.Chain)
+	return fmt.Sprintf("Path: '%s', Table: '%s', Chain: '%s'", c.Path, c.Table, c.Chain)
 }
 
 func NewConfig(path string, chain string) (*Config, error) {
 	return &Config{
 		Path:   path,
+		Table:  "filter",
 		Chain:  chain,
 		Logger: log.New(io.Discard, "", 0),
 	}, nil
+}
+
+func (c *Config) SetTable(table string) {
+	c.Table = table
 }
 
 func (c *Config) SetLogger(logger *log.Logger) {

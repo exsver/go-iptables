@@ -7,7 +7,7 @@ func (c *Config) Check(rule *Rule) error {
 		return err
 	}
 
-	args := []string{"-C", c.Chain}
+	args := []string{"-t", c.Table, "-C", c.Chain}
 	args = append(args, ruleArgs...)
 
 	return c.Do(args)

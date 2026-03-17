@@ -6,13 +6,17 @@ import (
 )
 
 type Rule struct {
-	Source      string
-	Destination string
-	Protocol    string
-	DstPort     string
-	SrcPort     string
-	Comment     string
-	Jump        string
+	Source        string
+	Destination   string
+	Protocol      string
+	DstPort       string
+	SrcPort       string
+	InInterface   string
+	OutInterface  string
+	Comment       string
+	Jump          string
+	ToDestination string // nat
+	ToSource      string // nat
 }
 
 func (r *Rule) GenArgs() ([]string, error) {
@@ -58,6 +62,14 @@ func (r *Rule) GenArgs() ([]string, error) {
 		}
 	}
 
+	if r.InInterface != "" {
+		args = append(args, "-i", r.InInterface)
+	}
+
+	if r.OutInterface != "" {
+		args = append(args, "-o", r.OutInterface)
+	}
+
 	if r.Comment != "" {
 		args = append(args, "-m", "comment", "--comment", fmt.Sprintf("'%s'", strings.ReplaceAll(r.Comment, "'", "\"")))
 	}
@@ -66,6 +78,14 @@ func (r *Rule) GenArgs() ([]string, error) {
 		args = append(args, "-j", r.Jump)
 	} else {
 		return nil, fmt.Errorf("jump must be specified")
+	}
+
+	if r.ToDestination != "" {
+		args = append(args, "--to-destination", r.ToDestination)
+	}
+
+	if r.ToSource != "" {
+		args = append(args, "--to-source", r.ToSource)
 	}
 
 	return args, nil
