@@ -7,13 +7,17 @@ import (
 
 func TestRule_GenArgs(t *testing.T) {
 	type fields struct {
-		Source      string
-		Destination string
-		Protocol    string
-		DstPort     string
-		SrcPort     string
-		Comment     string
-		Jump        string
+		Source        string
+		Destination   string
+		Protocol      string
+		DstPort       string
+		SrcPort       string
+		InInterface   string
+		OutInterface  string
+		Comment       string
+		Jump          string
+		ToDestination string
+		ToSource      string
 	}
 	tests := []struct {
 		name    string
@@ -107,18 +111,68 @@ func TestRule_GenArgs(t *testing.T) {
 			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "'deny \"ssh\"'", "-j", "DROP"},
 			wantErr: false,
 		},
+		{
+			name: "nat",
+			fields: fields{
+				Source:       "192.168.1.0/24",
+				OutInterface: "eth0",
+				Jump:         "SNAT",
+				ToSource:     "88.88.88.88",
+			},
+
+			want:    []string{"-s", "192.168.1.0/24", "-o", "eth0", "-j", "SNAT", "--to-source", "88.88.88.88"},
+			wantErr: false,
+		},
+		{
+			name: "port forwarding",
+			fields: fields{
+				Destination:   "88.88.88.88/32",
+				Protocol:      "tcp",
+				DstPort:       "22",
+				Jump:          "DNAT",
+				ToDestination: "192.168.1.201:22",
+			},
+			want:    []string{"-d", "88.88.88.88/32", "-p", "tcp", "--dport", "22", "-j", "DNAT", "--to-destination", "192.168.1.201:22"},
+			wantErr: false,
+		},
+		{
+			name: "RAWDNAT",
+			fields: fields{
+				Destination:   "100.100.100.100/32",
+				Protocol:      "tcp",
+				DstPort:       "80,443",
+				Jump:          "RAWDNAT",
+				ToDestination: "127.100.100.100/32",
+			},
+			want:    []string{"-d", "100.100.100.100/32", "-p", "tcp", "-m", "multiport", "--dports", "80,443", "-j", "RAWDNAT", "--to-destination", "127.100.100.100/32"},
+			wantErr: false,
+		},
+		{
+			name: "RAWSNAT",
+			fields: fields{
+				Source:   "127.100.100.100/32",
+				Jump:     "RAWSNAT",
+				ToSource: "100.100.100.100/32",
+			},
+			want:    []string{"-s", "127.100.100.100/32", "-j", "RAWSNAT", "--to-source", "100.100.100.100/32"},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Rule{
-				Source:      tt.fields.Source,
-				Destination: tt.fields.Destination,
-				Protocol:    tt.fields.Protocol,
-				DstPort:     tt.fields.DstPort,
-				SrcPort:     tt.fields.SrcPort,
-				Comment:     tt.fields.Comment,
-				Jump:        tt.fields.Jump,
+				Source:        tt.fields.Source,
+				Destination:   tt.fields.Destination,
+				Protocol:      tt.fields.Protocol,
+				DstPort:       tt.fields.DstPort,
+				SrcPort:       tt.fields.SrcPort,
+				InInterface:   tt.fields.InInterface,
+				OutInterface:  tt.fields.OutInterface,
+				Comment:       tt.fields.Comment,
+				Jump:          tt.fields.Jump,
+				ToDestination: tt.fields.ToDestination,
+				ToSource:      tt.fields.ToSource,
 			}
 
 			got, err := r.GenArgs()
