@@ -11,11 +11,11 @@ func (c *Config) Replace(rule *Rule, num int) error {
 		return err
 	}
 
-	args := []string{"-R", c.Chain, strconv.Itoa(num)}
+	args := []string{"-t", c.Table, "-R", c.Chain, strconv.Itoa(num)}
 	args = append(args, ruleArgs...)
 
 	// logger
-	c.Logger.Printf("Replacing iptables rule '%v' into chain '%s'", num, c.Chain)
+	c.Logger.Printf("Replacing iptables rule '%v' into table '%s' chain '%s'", num, c.Table, c.Chain)
 
 	return c.Do(args)
 }

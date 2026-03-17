@@ -9,11 +9,11 @@ func (c *Config) Append(rule *Rule) error {
 		return err
 	}
 
-	args := []string{"-A", c.Chain}
+	args := []string{"-t", c.Table, "-A", c.Chain}
 	args = append(args, ruleArgs...)
 
 	// logger
-	c.Logger.Printf("Appending iptables rule '%s' to chain '%s'", strings.Join(ruleArgs, " "), c.Chain)
+	c.Logger.Printf("Appending iptables rule '%s' into table '%s' chain '%s'", strings.Join(ruleArgs, " "), c.Table, c.Chain)
 
 	return c.Do(args)
 }
