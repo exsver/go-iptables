@@ -198,3 +198,50 @@ func main() {
 	}
 }
 ```
+
+### SNAT
+
+```
+iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o enp120s0 -j SNAT --to-source 88.88.88.88
+```
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/exsver/go-iptables"
+)
+
+// !!! Requires root privileges
+func main() {
+	// Create config: path to iptables bin and name of chain.
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "POSTROUTING")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set table
+	config.SetTable("nat")
+
+	// Optional: Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
+
+	// Prepare rule config
+	// -s 192.168.1.0/24 -o enp120s0 -j SNAT --to-source 88.88.88.88
+	rule := iptables.Rule{
+		Source:       "192.168.1.0/24",
+		OutInterface: "enp120s0",
+		Jump:         "SNAT",
+		ToSource:     "88.88.88.88",
+	}
+
+	// Exec iptables
+	err = config.Append(&rule)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
