@@ -37,10 +37,6 @@ func (r *Rule) GenArgs() ([]string, error) {
 			if len(ports) == 1 {
 				args = append(args, "--dport", strings.TrimSpace(r.DstPort))
 			} else {
-				portsString := ""
-				for _, port := range ports {
-					portsString += fmt.Sprintf(",%s", strings.TrimSpace(port))
-				}
 				args = append(args, "-m", "multiport", "--dports", strings.Join(ports, ","))
 			}
 		default:
@@ -53,12 +49,8 @@ func (r *Rule) GenArgs() ([]string, error) {
 		case "tcp", "udp":
 			ports := strings.Split(r.SrcPort, ",")
 			if len(ports) == 1 {
-				args = append(args, "--sport", r.SrcPort)
+				args = append(args, "--sport", strings.TrimSpace(r.SrcPort))
 			} else {
-				portsString := ""
-				for _, port := range ports {
-					portsString += fmt.Sprintf(",%s", strings.TrimSpace(port))
-				}
 				args = append(args, "-m", "multiport", "--sports", strings.Join(ports, ","))
 			}
 		default:
