@@ -35,10 +35,12 @@ type Config struct {
 	Logger *log.Logger
 }
 
+// String returns a string representation of the Config.
 func (c *Config) String() string {
 	return fmt.Sprintf("Path: '%s', Table: '%s', Chain: '%s'", c.Path, c.Table, c.Chain)
 }
 
+// NewConfig creates a new Config instance
 func NewConfig(path string, chain string) (*Config, error) {
 	return &Config{
 		Path:   path,
@@ -48,14 +50,21 @@ func NewConfig(path string, chain string) (*Config, error) {
 	}, nil
 }
 
+// SetTable sets the table name.
+// Examples: "filter", "nat", "mangle", "raw", "security".
+// Default is "filter".
 func (c *Config) SetTable(table string) {
 	c.Table = table
 }
 
+// SetLogger sets the logger.
+// Default is io.Discard.
 func (c *Config) SetLogger(logger *log.Logger) {
 	c.Logger = logger
 }
 
+// Do executes the command.
+// Returns an error if the command fails.
 func (c *Config) Do(args []string) error {
 	stdout, stderr, err := c.Exec(args)
 	if err != nil {
