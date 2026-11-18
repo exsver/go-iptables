@@ -14,6 +14,8 @@ func TestRule_GenArgs(t *testing.T) {
 		SrcPort       string
 		InInterface   string
 		OutInterface  string
+		MatchSet      string
+		MatchSetFlags string
 		Comment       string
 		Jump          string
 		ToDestination string
@@ -96,7 +98,7 @@ func TestRule_GenArgs(t *testing.T) {
 				Comment:     "deny ssh",
 				Jump:        "DROP",
 			},
-			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "'deny ssh'", "-j", "DROP"},
+			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "deny ssh", "-j", "DROP"},
 			wantErr: false,
 		},
 		{
@@ -108,7 +110,7 @@ func TestRule_GenArgs(t *testing.T) {
 				Comment:     "deny 'ssh'",
 				Jump:        "DROP",
 			},
-			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "'deny \"ssh\"'", "-j", "DROP"},
+			want:    []string{"-d", "192.168.1.200/32", "-p", "tcp", "--dport", "22", "-m", "comment", "--comment", "deny 'ssh'", "-j", "DROP"},
 			wantErr: false,
 		},
 		{
@@ -157,6 +159,45 @@ func TestRule_GenArgs(t *testing.T) {
 			want:    []string{"-s", "127.100.100.100/32", "-j", "RAWSNAT", "--to-source", "100.100.100.100/32"},
 			wantErr: false,
 		},
+		{
+			name: "match-set src",
+			fields: fields{
+				MatchSet:      "whitelist",
+				MatchSetFlags: "src",
+				Jump:          "ACCEPT",
+			},
+			want:    []string{"-m", "set", "--match-set", "whitelist", "src", "-j", "ACCEPT"},
+			wantErr: false,
+		},
+		{
+			name: "match-set src,dst with comment",
+			fields: fields{
+				MatchSet:      "net2net_blacklist",
+				MatchSetFlags: "src,dst",
+				Comment:       "net2net blacklist",
+				Jump:          "DROP",
+			},
+			want:    []string{"-m", "set", "--match-set", "net2net_blacklist", "src,dst", "-m", "comment", "--comment", "net2net blacklist", "-j", "DROP"},
+			wantErr: false,
+		},
+		{
+			name: "match-set without flags",
+			fields: fields{
+				MatchSet: "whiteip",
+				Jump:     "ACCEPT",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "match-set flags without set",
+			fields: fields{
+				MatchSetFlags: "src",
+				Jump:          "ACCEPT",
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -169,6 +210,8 @@ func TestRule_GenArgs(t *testing.T) {
 				SrcPort:       tt.fields.SrcPort,
 				InInterface:   tt.fields.InInterface,
 				OutInterface:  tt.fields.OutInterface,
+				MatchSet:      tt.fields.MatchSet,
+				MatchSetFlags: tt.fields.MatchSetFlags,
 				Comment:       tt.fields.Comment,
 				Jump:          tt.fields.Jump,
 				ToDestination: tt.fields.ToDestination,

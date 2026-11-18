@@ -245,3 +245,53 @@ func main() {
 	}
 }
 ```
+
+### Match ipset
+
+```
+iptables -A INPUT -m set --match-set whitelist src -j ACCEPT
+iptables -A INPUT -m set --match-set net2net_blacklist src,dst -m comment --comment "net2net blacklist" -j DROP
+```
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/exsver/go-iptables"
+)
+
+// !!! Requires root privileges
+func main() {
+	// Create config: path to iptables bin and name of chain.
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "INPUT")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Optional: Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
+
+	rules := []iptables.Rule{
+		{
+			MatchSet:      "whitelist",
+			MatchSetFlags: "src",
+			Jump:          "ACCEPT",
+		},
+		{
+			MatchSet:      "net2net_blacklist",
+			MatchSetFlags: "src,dst",
+			Comment:       "net2net blacklist",
+			Jump:          "DROP",
+		},
+	}
+
+	for i := range rules {
+		if err = config.Append(&rules[i]); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+```
