@@ -13,6 +13,8 @@ type Rule struct {
 	SrcPort       string
 	InInterface   string
 	OutInterface  string
+	MatchSet      string // ipset name, e.g. "whitelist"
+	MatchSetFlags string // "src", "dst", "src,dst", ...
 	Comment       string
 	Jump          string
 	ToDestination string // nat
@@ -70,8 +72,17 @@ func (r *Rule) GenArgs() ([]string, error) {
 		args = append(args, "-o", r.OutInterface)
 	}
 
+	if r.MatchSet != "" {
+		if r.MatchSetFlags == "" {
+			return nil, fmt.Errorf("match set flags must be specified")
+		}
+		args = append(args, "-m", "set", "--match-set", r.MatchSet, r.MatchSetFlags)
+	} else if r.MatchSetFlags != "" {
+		return nil, fmt.Errorf("match set must be specified")
+	}
+
 	if r.Comment != "" {
-		args = append(args, "-m", "comment", "--comment", fmt.Sprintf("'%s'", strings.ReplaceAll(r.Comment, "'", "\"")))
+		args = append(args, "-m", "comment", "--comment", r.Comment)
 	}
 
 	if r.Jump != "" {
