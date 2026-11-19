@@ -164,6 +164,51 @@ func main() {
 }
 ```
 
+### Delete Rule
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/exsver/go-iptables"
+)
+
+// !!! Requires root privileges
+func main() {
+	// Create config: path to iptables bin and name of chain.
+	config, err := iptables.NewConfig("/usr/sbin/iptables", "AppendRuleTest")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Optional: Set debug logger
+	config.SetLogger(log.New(os.Stdout, "Debug: ", 0))
+
+	// Delete rule by specification
+	// iptables -D AppendRuleTest -s 192.168.1.10/32 -d 192.168.1.20/32 -j DROP
+	rule := iptables.Rule{
+		Source:      "192.168.1.10/32",
+		Destination: "192.168.1.20/32",
+		Jump:        "DROP",
+	}
+
+	err = config.Delete(&rule)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Delete rule by number
+	// iptables -D AppendRuleTest 1
+	err = config.DeleteByNum(1)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
 ### Flush Chain
 
 ```go
